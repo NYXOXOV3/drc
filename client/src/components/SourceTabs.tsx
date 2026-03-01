@@ -1,0 +1,83 @@
+/**
+ * Source Tabs Component
+ * Design: Premium Streaming Experience
+ */
+
+import { motion } from "framer-motion";
+import { SOURCES, type SourceType } from "@/lib/api";
+
+interface SourceTabsProps {
+  activeSource: SourceType;
+  onSourceChange: (source: SourceType) => void;
+}
+
+// Image mapping for each source
+const sourceImages: Record<SourceType, string> = {
+  dramabox: "/assets/dramabox-logo.jpg",
+  netshort: "/assets/netshort-logo.jpg",
+  reelshort: "/assets/reelshort-logo.jpg",
+  melolo: "/assets/melolo-logo.jpg",
+  flickreels: "/assets/flickreels-logo.jpg",
+  freereels: "/assets/freereels-logo.jpg",
+};
+
+export default function SourceTabs({ activeSource, onSourceChange }: SourceTabsProps) {
+  const sources = Object.values(SOURCES);
+  
+  console.log("SourceTabs rendering with sources:", sources.length, sources.map(s => s.id));
+
+  return (
+    <div className="relative mb-6">
+      {/* Scrollable container */}
+      <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2 px-4">
+        {sources.map((source) => {
+          const isActive = activeSource === source.id;
+          const imageUrl = sourceImages[source.id as SourceType];
+          
+          return (
+            <motion.button
+              key={source.id}
+              onClick={() => {
+                console.log("Source clicked:", source.id);
+                onSourceChange(source.id as SourceType);
+              }}
+              className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm whitespace-nowrap transition-all duration-300 ${
+                isActive
+                  ? "text-white shadow-lg"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+              }`}
+              whileTap={{ scale: 0.95 }}
+            >
+              {/* Active background */}
+              {isActive && (
+                <motion.div
+                  layoutId="source-bg"
+                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary to-primary/80"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              
+              {/* Content */}
+              <span className="relative flex items-center gap-2 z-10">
+                <img 
+                  src={imageUrl} 
+                  alt={source.name}
+                  className="w-5 h-5 rounded object-cover"
+                  onError={(e) => {
+                    console.error("Failed to load image:", imageUrl);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                <span>{source.name}</span>
+              </span>
+            </motion.button>
+          );
+        })}
+      </div>
+      
+      {/* Fade edges */}
+      <div className="absolute left-0 top-0 bottom-2 w-4 bg-gradient-to-r from-background to-transparent pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-2 w-4 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+    </div>
+  );
+}
